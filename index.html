@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Insight Hub - Smart Sales Reports</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <h1>Sales Insight Hub</h1>
+            </div>
+            <p class="tagline">Connect to your SQL Server or upload sales documents to generate stunning reports instantly</p>
+            <div class="color-palette">
+                <div class="color-sample" style="background-color: #E6E6FA;" title="Lavender"></div>
+                <div class="color-sample" style="background-color: #98FF98;" title="Mint"></div>
+                <div class="color-sample" style="background-color: #FFDAB9;" title="Peach"></div>
+                <div class="color-sample" style="background-color: #B0E0E6;" title="Powder Blue"></div>
+            </div>
+        </header>
+
+        <!-- Input Section -->
+        <section class="input-section">
+            <div class="section-header">
+                <h2><i class="fas fa-database"></i> Data Source</h2>
+                <p>Choose how you want to analyze your sales data</p>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="database-tab">
+                    <i class="fas fa-server"></i> Database Connection
+                </button>
+                <button class="tab-btn" data-tab="file-tab">
+                    <i class="fas fa-file-upload"></i> Document Upload
+                </button>
+            </div>
+            
+            <div class="tab-content active" id="database-tab">
+                <div class="card">
+                    <h3><i class="fas fa-plug"></i> Connect to SQL Server 2022</h3>
+                    <p class="help-text">Enter your local SQL Server details to analyze sales data</p>
+                    
+                    <form id="db-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="server"><i class="fas fa-server"></i> Server Address</label>
+                                <input type="text" id="server" value="localhost" placeholder="localhost or 127.0.0.1">
+                                <small class="form-hint">Your SQL Server instance (default: localhost)</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="database"><i class="fas fa-database"></i> Database Name</label>
+                                <input type="text" id="database" placeholder="Enter database name">
+                                <small class="form-hint">Name of your sales database</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="username"><i class="fas fa-user"></i> Username</label>
+                                <input type="text" id="username" placeholder="Enter username">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="password"><i class="fas fa-lock"></i> Password</label>
+                                <input type="password" id="password" placeholder="Enter password">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="table"><i class="fas fa-table"></i> Sales Table</label>
+                                <input type="text" id="table" value="sales" placeholder="sales">
+                                <small class="form-hint">Name of your sales table (default: sales)</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" id="test-connection" class="btn-secondary">
+                                <i class="fas fa-plug"></i> Test Connection
+                            </button>
+                            <button type="submit" id="generate-reports" class="btn-primary">
+                                <i class="fas fa-magic"></i> Generate Sales Reports
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="file-tab">
+                <div class="card">
+                    <h3><i class="fas fa-file-import"></i> Upload Sales Documents</h3>
+                    <p class="help-text">Upload PDF, DOC, or Excel files containing sales data</p>
+                    
+                    <div class="upload-area" id="upload-area">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h4>Drag & Drop Your Files Here</h4>
+                        <p>or click to browse</p>
+                        <input type="file" id="file-input" accept=".pdf,.doc,.docx,.xlsx,.csv" multiple hidden>
+                        <button type="button" id="browse-btn" class="btn-secondary">Browse Files</button>
+                        <p class="file-types">Supported: PDF, Word, Excel, CSV</p>
+                    </div>
+                    
+                    <div id="file-list" class="file-list"></div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="analyze-files" class="btn-primary" disabled>
+                            <i class="fas fa-chart-bar"></i> Analyze Documents
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Processing Section -->
+        <section class="processing-section" id="processing-section" style="display: none;">
+            <div class="card">
+                <h3><i class="fas fa-cogs"></i> Processing Your Data</h3>
+                <div class="processing-content">
+                    <div class="spinner"></div>
+                    <p id="processing-message">Connecting to database and analyzing sales data...</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="processing-steps">
+                        <div class="step active"><i class="fas fa-check"></i> Data Source</div>
+                        <div class="step"><i class="fas fa-spinner"></i> Analyzing</div>
+                        <div class="step"><i class="fas fa-chart-pie"></i> Visualizing</div>
+                        <div class="step"><i class="fas fa-file-alt"></i> Summarizing</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="results-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-line"></i> Sales Report Dashboard</h2>
+                <p>Your analyzed sales data with interactive charts and insights</p>
+            </div>
+            
+            <!-- Metrics Cards -->
+            <div class="metrics-grid" id="metrics-grid">
+                <!-- Metrics will be generated by JavaScript -->
+            </div>
+            
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-bar"></i> Monthly Sales</h3>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-pie"></i> Top Products</h3>
+                    <div class="chart-container">
+                        <canvas id="productsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Summary & Export Row -->
+            <div class="summary-row">
+                <div class="summary-card">
+                    <h3><i class="fas fa-comment-alt"></i> Sales Summary</h3>
+                    <div class="summary-content" id="summary-content">
+                        <!-- Generated summary will appear here -->
+                    </div>
+                    <div class="summary-actions">
+                        <button class="btn-secondary" id="copy-summary">
+                            <i class="fas fa-copy"></i> Copy Summary
+                        </button>
+                        <button class="btn-secondary" id="regenerate-summary">
+                            <i class="fas fa-redo"></i> Regenerate
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="export-card">
+                    <h3><i class="fas fa-download"></i> Export Options</h3>
+                    <div class="export-options">
+                        <button class="export-btn" data-format="pdf">
+                            <i class="fas fa-file-pdf"></i> PDF Report
+                        </button>
+                        <button class="export-btn" data-format="excel">
+                            <i class="fas fa-file-excel"></i> Excel Data
+                        </button>
+                        <button class="export-btn" data-format="email">
+                            <i class="fas fa-envelope"></i> Email Summary
+                        </button>
+                        <button class="export-btn" data-format="presentation">
+                            <i class="fas fa-presentation"></i> Presentation
+                        </button>
+                    </div>
+                    <div class="export-hint">
+                        <p><i class="fas fa-info-circle"></i> Export your complete sales report with charts and insights</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Table -->
+            <div class="data-table-card">
+                <h3><i class="fas fa-table"></i> Sales Data Preview</h3>
+                <div class="table-container">
+                    <table id="sales-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Product</th>
+                                <th>Region</th>
+                                <th>Amount</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sales-table-body">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-footer">
+                    <p>Showing <span id="row-count">0</span> sales records from your database</p>
+                    <button class="btn-secondary" id="refresh-data">
+                        <i class="fas fa-sync"></i> Refresh Data
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Sales Insight Hub v1.0 • Designed for professionals to analyze sales data without coding</p>
+            <p class="footer-note"><i class="fas fa-shield-alt"></i> Your database credentials are processed securely and never stored</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="mockData.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
